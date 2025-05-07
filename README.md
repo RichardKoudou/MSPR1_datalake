@@ -22,7 +22,52 @@ Preuve de concept (POC) développée pour Elexxion, une start-up spécialisée d
 ## 📊 Architecture du Projet
 
 - ![Architecture du Projet](assets/architecture.png)
-- ![Architecture du Projet](assets/architecture2.png)
+  
+```mermaid
+graph TB
+    subgraph Infrastructure["🏗️ Infrastructure"]
+        D[("Docker 🐳")]
+        KFK["Apache Kafka"]
+        MINIO["MinIO"]
+        PSQL["PostgreSQL"]
+    end
+
+    subgraph DataProcessing["📊 Traitement des Données"]
+        ETL["ETL Scripts 🔄"]
+        DSS["Dataiku DSS"]
+        NB["Notebooks Jupyter 📓"]
+    end
+
+    subgraph PythonStack["🐍 Stack Python"]
+        PY["Python 3.x"]
+        PY --> PD["Pandas & NumPy"]
+        PY --> SKL["Scikit-learn"]
+        PY --> MPL["Matplotlib"]
+    end
+
+    subgraph ProjectModules["📦 Modules du Projet"]
+        direction TB
+        SRC["src/"]
+        SRC --> ETLM["etl/"]
+        SRC --> MOD["models/"]
+        SRC --> VIS["visualization/"]
+    end
+
+    %% Flux de données
+    ETL --> KFK
+    KFK --> DSS
+    DSS --> MINIO
+    ETL --> PSQL
+    NB --> PSQL
+    ETLM --> PY
+    MOD --> SKL
+    VIS --> MPL
+
+    style Infrastructure fill:#e1f5fe,stroke:#01579b
+    style DataProcessing fill:#f3e5f5,stroke:#4a148c
+    style PythonStack fill:#e8f5e9,stroke:#1b5e20
+    style ProjectModules fill:#fff3e0,stroke:#e65100
+```
 
 ## 🛠️ Technologies Utilisées
 
