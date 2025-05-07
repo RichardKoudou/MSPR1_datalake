@@ -1,2 +1,5 @@
-/election_dataset
-/.venv
+.venv
+.env
+__pycache__
+*.pyc
+*.pyo
