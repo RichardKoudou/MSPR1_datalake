@@ -19,14 +19,26 @@ Preuve de concept (POC) développée pour Elexxion, une start-up spécialisée d
 └── docker-compose.yml   # Configuration Docker
 ```
 
+## 📊 Architecture du Projet
+
+- ![Architecture du Projet](assets/architecture.png)
+- ![Architecture du Projet](assets/architecture2.png)
+
 ## 🛠️ Technologies Utilisées
 
 - **Python 3.x** avec les bibliothèques :
   - Pandas & NumPy : Manipulation des données
   - Scikit-learn : Modélisation prédictive
   - Matplotlib : Visualisation
-- **Docker** : Conteneurisation
-- **SQL** : Stockage des données
+- **Infrastructure Data :**
+  - Apache Kafka : Streaming de données en temps réel
+  - MinIO : Stockage d'objets S3-compatible
+  - PostgreSQL : Base de données relationnelle
+- **Outils de Data Science :**
+  - Dataiku DSS : Plateforme de Data Science
+  - Kafka UI : Interface de gestion Kafka
+- **Docker** : Conteneurisation et orchestration des services
+- **SQL** : Requêtage et analyse des données
 
 ## 🚀 Installation et Démarrage
 
