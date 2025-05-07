@@ -28,11 +28,12 @@ graph TB
     subgraph Infrastructure["🏗️ Infrastructure"]
         D[("Docker 🐳")]
         KFK["Apache Kafka"]
-        MINIO["MinIO"]
+        MINIO["MinIO Datalake"]
         PSQL["PostgreSQL"]
     end
 
     subgraph DataProcessing["📊 Traitement des Données"]
+        SCRP["Web Scraping 🕷️"]
         ETL["ETL Scripts 🔄"]
         DSS["Dataiku DSS"]
         NB["Notebooks Jupyter 📓"]
@@ -54,10 +55,11 @@ graph TB
     end
 
     %% Flux de données
-    ETL --> KFK
-    KFK --> DSS
-    DSS --> MINIO
-    ETL --> PSQL
+    SCRP --> KFK
+    KFK --> ETL
+    ETL --> MINIO
+    MINIO --> DSS
+    DSS --> PSQL
     NB --> PSQL
     ETLM --> PY
     MOD --> SKL
