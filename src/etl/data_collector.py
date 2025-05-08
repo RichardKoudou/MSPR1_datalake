@@ -6,14 +6,36 @@ from io import BytesIO
 from bs4 import BeautifulSoup
 import re
 import time
+import boto3
+from botocore.exceptions import NoCredentialsError
 
 class DataCollector:
     """Classe pour la collecte des données depuis data.gouv.fr"""
 
     def __init__(self):
         load_dotenv()
-        self.base_url = "https://www.data.gouv.fr"
+        self.base_url = os.getenv('BASE_URL', 'https://www.data.gouv.fr')
         self.supported_extensions = ['csv', 'json', 'xls', 'xlsx', 'zip']
+        
+        # Configuration du stockage local
+        self.local_data_path = os.path.join(os.getcwd(), 'data')
+        os.makedirs(self.local_data_path, exist_ok=True)
+        
+        # Configuration MinIO
+        self.minio_client = boto3.client(
+            's3',
+            endpoint_url='http://localhost:9000',
+            aws_access_key_id='minioadmin',
+            aws_secret_access_key='minioadmin',
+            verify=False
+        )
+        self.bucket_name = 'mspr-data'
+        
+        # Création du bucket si nécessaire
+        try:
+            self.minio_client.head_bucket(Bucket=self.bucket_name)
+        except:
+            self.minio_client.create_bucket(Bucket=self.bucket_name)
 
     def get_all_datasets(self, url):
         """Récupère tous les liens des datasets depuis une URL"""
@@ -56,29 +78,40 @@ class DataCollector:
             print(f"Erreur lors de l'accès à {dataset_url} : {e}")
 
     def _download_file(self, file_link):
-        """Télécharge un fichier et le sauvegarde dans le dossier approprié"""
+        """Télécharge un fichier et le sauvegarde localement puis sur MinIO"""
         file_name = file_link.split("/")[-1]
         file_ext = file_name.split(".")[-1].lower()
         
-        # Création du dossier spécifique au type de fichier
-        save_dir = os.path.join('data/raw', file_ext)
-        os.makedirs(save_dir, exist_ok=True)
-        
-        file_path = os.path.join(save_dir, file_name)
-        
         print(f"Téléchargement de {file_name} depuis {file_link}...")
-        for attempt in range(3):  # Retry jusqu'à 3 fois
+        
+        for attempt in range(3):
             try:
                 response = requests.get(file_link, stream=True, timeout=15)
                 response.raise_for_status()
+                
+                # Stockage local
+                save_dir = os.path.join(self.local_data_path, file_ext)
+                os.makedirs(save_dir, exist_ok=True)
+                file_path = os.path.join(save_dir, file_name)
+                
                 with open(file_path, 'wb') as f:
                     for chunk in response.iter_content(chunk_size=1024):
                         f.write(chunk)
-                print(f"Téléchargé : {file_name}")
+                print(f"Fichier {file_name} téléchargé localement")
+                
+                # Transfert vers MinIO
+                object_name = f"{file_ext}/{file_name}"
+                try:
+                    with open(file_path, 'rb') as f:
+                        self.minio_client.upload_fileobj(f, self.bucket_name, object_name)
+                    print(f"Fichier {file_name} transféré vers MinIO")
+                except Exception as minio_error:
+                    print(f"Erreur lors du transfert vers MinIO : {minio_error}")
+                
                 break
-            except requests.RequestException as e:
+            except Exception as e:
                 print(f"Tentative {attempt + 1} échouée pour {file_name} : {e}")
-                time.sleep(5)  # Pause avant retry
+                time.sleep(5)
         else:
             print(f"Échec final du téléchargement de {file_name}")
 
