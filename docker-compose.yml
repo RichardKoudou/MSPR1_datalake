@@ -57,7 +57,7 @@ services:
 
   dataiku:
     image: dataiku/dss:latest
-    container_name: dataiku_dss
+    container_name: dataiku_dss_mspr
     ports:
       - "8081:8081"
       - "10000:10000"
