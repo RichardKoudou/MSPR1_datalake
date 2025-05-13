@@ -115,6 +115,21 @@ class DataCollector:
         else:
             print(f"Échec final du téléchargement de {file_name}")
 
+    def check_data_exists(self):
+        """Vérifie si les données existent déjà dans le stockage local et MinIO"""
+        try:
+            # Vérification du stockage local
+            local_data_exists = any(os.listdir(self.local_data_path))
+            
+            # Vérification MinIO
+            minio_objects = self.minio_client.list_objects(Bucket=self.bucket_name)
+            minio_data_exists = any(obj for obj in minio_objects)
+            
+            return local_data_exists and minio_data_exists
+        except Exception as e:
+            print(f"Erreur lors de la vérification des données : {e}")
+            return False
+
     def collect_all_data(self, urls):
         """Collecte toutes les données à partir d'une liste d'URLs"""
         for url in urls:
