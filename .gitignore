@@ -9,3 +9,4 @@ __pycache__
 /data
 .idea
 /output_sql
+/election_dataset
