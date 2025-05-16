@@ -6,7 +6,7 @@ import json
 class DataTransformer:
     def __init__(self, input_folder):
         self.input_folder = input_folder
-        print(f"🕮️ Chargement des fichiers sources depuis : {self.input_folder}")
+        print(f" Chargement des fichiers sources depuis : {self.input_folder}")
         if not os.path.exists(self.input_folder):
             raise FileNotFoundError(f"Dossier introuvable : {self.input_folder}")
         self.dataframes = self.load_dataframes()
