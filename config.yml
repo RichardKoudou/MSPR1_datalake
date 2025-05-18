@@ -1,0 +1,11 @@
+ingestion:
+  communes:
+    file: assets/communes.csv
+  elections:
+    fake_rows: 5000
+    url: https://...
+  socio_eco:
+    seed: 42
+    url: https://api.insee.fr/...
+mode: fake
+seed: 42
