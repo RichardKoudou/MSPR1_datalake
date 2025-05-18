@@ -6,9 +6,12 @@ __pycache__
 *.pyo
 .DS_Store
 
+/data
 /data/raw
 /data/fake
 /data/processed
 .idea
 /output_sql
 /election_dataset
+
+/structure.txt
