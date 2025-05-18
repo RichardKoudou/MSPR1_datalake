@@ -1,54 +1,29 @@
-import pandas as pd
-from src.etl.data_collector import DataCollector
-from src.etl.data_transformer import DataTransformer
+import argparse, sys, yaml
+from src.ingestion.ingest import run_ingestion
+from src.transformation.run_all_transformations import main as run_transfo
+from src.prediction.training_pipeline import train
+from src.prediction.predictor import predict
 
-def main():
-    """
-    Main function to execute the data collection, transformation, prediction, and visualization.
-    """
+def cli():
+    p = argparse.ArgumentParser()
+    p.add_argument("--step", choices=["all", "ingest", "transform", "train", "predict"], default="all")
+    p.add_argument("--mode", choices=["api", "fake"], default=None, help="Force un mode (outre config.yml)")
+    args = p.parse_args()
 
-    # Initialisation du collecteur de données
-    collector = DataCollector()
+    # surcharge dynamique
+    if args.mode:
+        cfg = yaml.safe_load(open("config.yml"))
+        cfg["mode"] = args.mode
+        yaml.safe_dump(cfg, open("config.yml", "w"))
 
-    # Liste des URLs pour la collecte de données
-    urls = [
-        "https://www.data.gouv.fr/fr/pages/donnees-emploi/",
-        "https://www.data.gouv.fr/fr/pages/donnees-elections/",
-        "https://www.data.gouv.fr/fr/pages/donnees-securite/"
-    ]
-
-    # Vérification de l'existence des données
-    if not collector.check_data_exists():
-        print("Aucune donnée existante trouvée. Démarrage de la collecte des données...")
-        collector.collect_all_data(urls)
-        print("Collecte des données terminée.")
-    else:
-        print("Les données existent déjà dans le stockage.")
-        # Lancement du processus ETL
-        print("Démarrage du processus ETL...")
-        # Initialisation du transformateur de données
-        transformer = DataTransformer()
-        try:
-            # Chargement des données
-            election_data = pd.read_csv('data/csv/election_data.csv')  # Ajustez le chemin selon votre structure
-            socioeconomic_data = pd.read_csv('data/raw/socioeconomic_data.csv')  # Ajustez le chemin selon votre structure
-            # Nettoyage des données
-            clean_election_data = transformer.clean_election_data(election_data)
-            clean_socioeconomic_data = transformer.clean_socioeconomic_data(socioeconomic_data)
-            # Fusion des datasets
-            merged_data = transformer.merge_datasets(clean_election_data, clean_socioeconomic_data)
-            
-            # Préparation pour la modélisation
-            final_data = transformer.prepare_for_modeling(merged_data)
-            
-            # Sauvegarde des données transformées
-            final_data.to_csv('data/processed/final_dataset.csv', index=False)
-            print("Données transformées et sauvegardées avec succès.")
-            
-        except Exception as e:
-            print(f"Erreur lors du processus ETL: {str(e)}")
-        
-        print("Processus ETL terminé.")
+    if args.step in ("all", "ingest"):
+        run_ingestion()
+    if args.step in ("all", "transform"):
+        run_transfo()
+    if args.step in ("all", "train"):
+        train()
+    if args.step in ("all", "predict"):
+        print(predict().head())
 
 if __name__ == "__main__":
-    main()
+    cli()
