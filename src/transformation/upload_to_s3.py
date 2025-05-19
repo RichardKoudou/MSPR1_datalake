@@ -4,7 +4,6 @@ import os
 import logging
 import boto3
 from botocore.exceptions import ClientError            # OK pour toutes les erreurs S3
-# from boto3.exceptions import S3UploadFailedError     # Optionnel, si vous voulez distinguer
 
 from dotenv import load_dotenv
 
@@ -46,13 +45,13 @@ def upload_directory_to_s3(local_directory: str, bucket: str, s3_prefix: str = '
             try:
                 logger.info(f"Uploading {local_path} → s3://{bucket}/{s3_key}")
                 s3.upload_file(local_path, bucket, s3_key)
-                logger.info(f"✔ Uploaded {s3_key}")
+                logger.info(f"Uploaded {s3_key}")
             except ClientError as e:
                 # Couvre tous les cas (AccessDenied, etc.) :contentReference[oaicite:1]{index=1}
-                logger.error(f"❌ Échec upload {s3_key}: {e}")
+                logger.error(f"Échec upload {s3_key}: {e}")
                 continue
 
-    logger.info("✅ Upload terminé.")
+    logger.info("Upload terminé.")
 
 if __name__ == '__main__':
     upload_directory_to_s3(LOCAL_DATA_DIR, BUCKET_NAME)

@@ -1,7 +1,7 @@
 import joblib, pathlib, pandas as pd, datetime as dt
 
 MODEL_F = pathlib.Path("models/electoral_model.joblib")
-CURATED = pathlib.Path("data/curated/dataset.parquet")
+CURATED = pathlib.Path("data-test/train.parquet")
 OUT_DIR = pathlib.Path("data/predictions"); OUT_DIR.mkdir(exist_ok=True)
 
 def predict(input_path: str | pathlib.Path | None = None,
@@ -19,5 +19,5 @@ def predict(input_path: str | pathlib.Path | None = None,
         out_file or OUT_DIR / f"pred_{dt.date.today()}.csv"
     )
     res.to_csv(out_path, index=False)
-    print(f"✅  Prédictions sauvegardées → {out_path}")
+    print(f" Prédictions sauvegardées → {out_path}")
     return out_path

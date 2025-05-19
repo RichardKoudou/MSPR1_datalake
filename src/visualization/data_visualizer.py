@@ -2,7 +2,7 @@ import pandas as pd, matplotlib.pyplot as plt, pathlib, seaborn as sns
 sns.set_theme()                 # style simple
 
 #CURATED = pathlib.Path("data/curated/dataset.parquet")
-CURATED = pathlib.Path("../../data/curated/dataset.parquet")
+CURATED = pathlib.Path("data-test/train.parquet")
 
 def correlation_matrix():
     df = pd.read_parquet(CURATED)

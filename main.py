@@ -16,7 +16,7 @@ def cli():
     )
     p.add_argument(
         "--mode",
-        choices=["api", "fake"],
+        choices=["api"],
         default=None,
         help="Force un mode (outre config.yml)",
     )
