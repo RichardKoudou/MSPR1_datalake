@@ -1,29 +1,36 @@
+import os
 import boto3
 import pandas as pd
 from io import BytesIO
+from dotenv import load_dotenv
 from sklearn.model_selection import train_test_split
 import yaml
-import os
 
-# Chemin absolu vers config.yml
+# Charger les variables d'environnement depuis .env
+load_dotenv()
+
+# Charger les URLs depuis config.yml
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "../../config.yml")
-
-# Chargement du config.yml
 with open(CONFIG_PATH, "r") as f:
     config = yaml.safe_load(f)
 
-aws_config = config["aws"]
+# Détection du type de stockage et configuration S3 ou MinIO
+storage_type = os.getenv("STORAGE_TYPE", "file").lower()
 
-# Création du client boto3 avec les identifiants explicites
-s3 = boto3.client(
-    "s3",
-    aws_access_key_id=aws_config["access_key"],
-    aws_secret_access_key=aws_config["secret_access_key"],
-    region_name=aws_config.get("region", "eu-north-1")
-)
+if storage_type == "aws":
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        region_name=os.getenv("AWS_REGION", "eu-north-1")
+    )
+    bucket_name = os.getenv("AWS_BUCKET_NAME")
 
-BUCKET_NAME = aws_config["bucket"]
-IDF_DEPARTMENTS = {"75", "77", "78", "91", "92", "93", "94", "95"}
+else:
+    raise ValueError("STORAGE_TYPE doit être 'aws' ou 'minio'")
+
+BUCKET_NAME = bucket_name
+#IDF_DEPARTMENTS = {"75", "77", "78", "91", "92", "93", "94", "95"}
 
 def list_s3_files(prefix):
     response = s3.list_objects_v2(Bucket=BUCKET_NAME, Prefix=prefix)
