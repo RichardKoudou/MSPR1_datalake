@@ -1,36 +1,33 @@
-from src.ingestion.loading import elections_loader, socio_eco_loader, communes_loader
-import yaml
+import sys
+import os
 
-_LOADERS = {
-    "elections": (elections_loader.ElectionsAPILoader,
-                  elections_loader.ElectionsFakeLoader),
-    "socio_eco": (socio_eco_loader.SocioEcoAPILoader,
-                  socio_eco_loader.SocioEcoFakeLoader),
-    "communes":  (communes_loader.CommunesLoader,
-                  communes_loader.CommunesLoader),   # même classe pour les 2 modes
-}
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+from src.utils.config_loader import load_config
+
+import yaml
+from src.ingestion.downloader import download_and_extract
+from src.ingestion.uploader import upload_folder_to_s3
 
 def run_ingestion():
-    """
-    Lance l'ingestion des données
-    """
-    # Charger la configuration
-    cfg = yaml.safe_load(open("config.yml"))
-    
-    results = {}
-    for dataset, (APILoader, FakeLoader) in _LOADERS.items():
-        # Récupérer la configuration spécifique au dataset
-        dataset_cfg = cfg.get("ingestion", {}).get(dataset, {})
-        
-        print(f"Chargement des données {dataset}...")
-        if cfg["mode"] == "prod":
-            loader = APILoader(dataset_cfg)
-        else:
-            loader = FakeLoader(dataset_cfg)
+    config = load_config()
+    aws_cfg = config["aws"]
+    for dataset_cfg in config["datasets"]:
+        dataset_name = dataset_cfg["name"]
+        urls = dataset_cfg["urls"]
+        local_folder = os.path.join("data", dataset_name)
+        os.makedirs(local_folder, exist_ok=True)
 
-        # Charger les données
-        data = loader.load()
-        results[dataset] = data
-        print(f"Données {dataset} chargées: {len(data)} lignes")
+        print(f"Téléchargement du dataset : {dataset_name}")
+        for url in urls:
+            print(f"Téléchargement depuis : {url}")
+            download_and_extract(url, local_folder)
 
-    return results
+        s3_prefix = f"raw/{dataset_name}/"
+        print(f"Upload des fichiers vers s3://{aws_cfg['bucket']}/{s3_prefix}")
+        upload_folder_to_s3(local_folder, aws_cfg["bucket"], s3_prefix, aws_cfg)
+
+
+
+if __name__ == "__main__":
+    run_ingestion()

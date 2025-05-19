@@ -22,7 +22,7 @@ def cli():
     )
     p.add_argument("--input", help="Fichier pour --step predict")
     p.add_argument("--output", help="Fichier pour --step predict")
-    args = p.parse_args()
+    args = p.parse_args()  
 
     # surcharge dynamique
     if args.mode:
