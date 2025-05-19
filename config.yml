@@ -1,0 +1,24 @@
+datasets:
+  - name : communes
+    urls: 
+    - https://www.data.gouv.fr/fr/datasets/r/2d6672c3-dd68-4dc3-ada3-68abaa34cc99
+    
+  - name : elections
+    urls: 
+    - https://www.data.gouv.fr/fr/datasets/r/98eb9dab-f328-4dee-ac08-ac17211357a8
+    - https://www.data.gouv.fr/fr/datasets/r/6d9b33e5-667d-4c3e-9a0b-5fdf5baac708
+    - https://www.data.gouv.fr/fr/datasets/r/1a35594a-99f2-4257-87e0-ec2f55039276
+    - https://www.data.gouv.fr/fr/datasets/r/18847484-f622-4ccc-baa9-e6b12f749514
+    - https://www.data.gouv.fr/fr/datasets/r/027763c9-f97d-4468-b2d5-c310a1020fa7
+    - https://www.data.gouv.fr/fr/datasets/r/0f4d10a3-90ef-4330-a36b-7e8f518133f9
+
+  - name : socio_eco
+    urls: 
+    - https://www.data.gouv.fr/fr/datasets/r/8debb975-02da-4bfc-808f-42d18ad76d0b
+    - https://www.data.gouv.fr/fr/datasets/r/d4082e88-2438-45ac-96da-afa62f375c3e
+    - https://www.data.gouv.fr/fr/datasets/r/e8c8fdc6-ed0a-4157-b9ec-a13e2211fc2d
+    - https://www.data.gouv.fr/fr/datasets/r/d351bac5-4523-443e-99a7-ecc1950825ae
+
+mode: api
+
+
